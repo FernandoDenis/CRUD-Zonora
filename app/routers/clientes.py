@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 
 from app.database import get_db
 from app.schemas import ClienteCreate, ClienteRead
@@ -23,3 +24,9 @@ def obtener_cliente(cliente_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
     return cliente
     
+@router.get("", response_model=list[ClienteRead], status_code=200)
+def listar_clientes(db: Session = Depends(get_db)):
+    consulta = select(Cliente)
+    resultado = db.scalars(consulta)
+    clientes = resultado.all()
+    return clientes
