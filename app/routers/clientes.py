@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 
 from app.database import get_db
-from app.schemas import ClienteCreate, ClienteRead
+from app.schemas import ClienteCreate, ClienteRead, ClienteUpdate
 from app.models import Cliente
 
 
@@ -30,3 +30,13 @@ def listar_clientes(db: Session = Depends(get_db)):
     resultado = db.scalars(consulta)
     clientes = resultado.all()
     return clientes
+
+@router.patch("/{cliente_id}", response_model=ClienteRead, status_code=200)
+def actualizar_cliente(cliente_id: int, datos: ClienteUpdate, db: Session = Depends(get_db)):
+    cliente = db.get(Cliente, cliente_id)
+    if cliente is None:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    cliente.nombre = datos.nombre
+    db.commit()
+    db.refresh(cliente)
+    return cliente
