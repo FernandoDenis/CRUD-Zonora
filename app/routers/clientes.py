@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import select
+from app.auth import get_current_user
 
 from app.database import get_db
 from app.schemas import ClienteCreate, ClienteRead, ClienteUpdate
 from app.models import Cliente
 
 
-router = APIRouter(prefix="/clientes", tags=["clientes"])
+router = APIRouter(prefix="/clientes", tags=["clientes"], dependencies=[Depends(get_current_user)])
 
 @router.post("", response_model=ClienteRead, status_code=201)
 def crear_cliente(datos: ClienteCreate, db: Session = Depends(get_db)):
